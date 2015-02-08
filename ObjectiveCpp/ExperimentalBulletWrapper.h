@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
 #import <vector>
 using namespace std;
 #import "OpenGLManipulatingModel.h"
