@@ -594,18 +594,7 @@ ShaderProgram *globalFlippedShader = nil;
 	float deltaX = currentPoint.x - lastPoint.x;
 	float deltaY = currentPoint.y - lastPoint.y;
 	
-	if ([e modifierFlags] & NSAlternateKeyMask)
-	{
-		if (cameraMode == CameraModePerspective)
-		{
-			lastPoint = currentPoint;
-			const float sensitivity = 0.005f;
-			camera->RotateLeftRight(deltaX * sensitivity);
-			camera->RotateUpDown(-deltaY * sensitivity);
-			[self setNeedsDisplay:YES];
-		}
-	}
-	else if (isManipulating)
+	if (isManipulating)
 	{
 		lastPoint = currentPoint;
 		if (currentManipulator == translationManipulator)
@@ -646,18 +635,13 @@ ShaderProgram *globalFlippedShader = nil;
 	float deltaX = currentPoint.x - lastPoint.x;
 	float deltaY = currentPoint.y - lastPoint.y;
 	
-	if ([e modifierFlags] & NSAlternateKeyMask)
+	if ([e modifierFlags] & NSShiftKeyMask)
 	{
-		NSRect bounds = [self bounds];
-		float w = bounds.size.width;
-		float h = bounds.size.height;
-		float sensitivity = (w + h) / 2.0f;
-		sensitivity = 1.0f / sensitivity;
-		camera->LeftRight(-deltaX * camera->GetZoom() * sensitivity);
-		camera->UpDown(deltaY * camera->GetZoom() * sensitivity);
-		
-		lastPoint = currentPoint;
-		[self setNeedsDisplay:YES];
+		[self panByDeltaX:(float)deltaX deltaY:(float)deltaY];
+	}
+	else
+	{
+		[self rotateByDeltaX:deltaX deltaY:deltaY];
 	}
 }
 
@@ -1048,6 +1032,34 @@ ShaderProgram *globalFlippedShader = nil;
 
 - (IBAction)redraw:(id)sender
 {
+	[self setNeedsDisplay:YES];
+}
+
+#pragma mark Navigation
+
+- (void)rotateByDeltaX:(float)deltaX deltaY:(float)deltaY
+{
+	if (cameraMode == CameraModePerspective)
+	{
+		lastPoint = currentPoint;
+		const float sensitivity = 0.005f;
+		camera->RotateLeftRight(deltaX * sensitivity);
+		camera->RotateUpDown(-deltaY * sensitivity);
+		[self setNeedsDisplay:YES];
+	}
+}
+
+- (void)panByDeltaX:(float)deltaX deltaY:(float)deltaY
+{
+	NSRect bounds = [self bounds];
+	float w = bounds.size.width;
+	float h = bounds.size.height;
+	float sensitivity = (w + h) / 2.0f;
+	sensitivity = 1.0f / sensitivity;
+	camera->LeftRight(-deltaX * camera->GetZoom() * sensitivity);
+	camera->UpDown(deltaY * camera->GetZoom() * sensitivity);
+
+	lastPoint = currentPoint;
 	[self setNeedsDisplay:YES];
 }
 
