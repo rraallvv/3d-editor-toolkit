@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>CBC794D3-CE5A-4C5D-9E76-3D24A9E05EBF</string>
+	<key>IDESourceControlProjectName</key>
+	<string>OpenGLEditor</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>FF37D0D793E8B888B21896CBEC79F5EEBF29722B</key>
+		<string>https://github.com/rraallvv/3d-editor-toolkit</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>OpenGLEditor.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>FF37D0D793E8B888B21896CBEC79F5EEBF29722B</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/rraallvv/3d-editor-toolkit</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>FF37D0D793E8B888B21896CBEC79F5EEBF29722B</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>FF37D0D793E8B888B21896CBEC79F5EEBF29722B</string>
+			<key>IDESourceControlWCCName</key>
+			<string>3d-editor-toolkit</string>
+		</dict>
+	</array>
+</dict>
+</plist>
