@@ -973,9 +973,15 @@ constrainSplitPosition:(CGFloat)proposedPosition
 	if (oneView)
 	{
 		[viewPerspective setCameraMode:CameraModePerspective];
+		
 		NSRect frame = [viewPerspective frame];
+
+		[[[topSplit subviews] objectAtIndex:0] setFrame:frame];
+		[[[bottomSplit subviews] objectAtIndex:0] setFrame:frame];
 		[[[mainSplit subviews] objectAtIndex:0] setFrame:frame];
+
 		oneView = NO;
+
 		return;
 	}
 	
