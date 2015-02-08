@@ -65,7 +65,7 @@
 
 - (void)drawAtIndex:(uint)index forSelection:(BOOL)forSelection withMode:(enum ViewMode)mode
 {
-	btScalar m[16];
+	ATTRIBUTE_ALIGNED16(btScalar) m[16];
 	
 	btCollisionObject *colObj = dynamicsWorld->getCollisionObjectArray()[index];
 	btRigidBody *body = btRigidBody::upcast(colObj);
