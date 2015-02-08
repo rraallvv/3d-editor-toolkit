@@ -99,13 +99,21 @@ void btCollisionShape::calculateTemporalAabb(const btTransform& curTrans,const b
 const char*	btCollisionShape::serialize(void* dataBuffer, btSerializer* serializer) const
 {
 	btCollisionShapeData* shapeData = (btCollisionShapeData*) dataBuffer;
-	shapeData->m_name = (char*) serializer->findNameForPointer(this);
+	char* name = (char*) serializer->findNameForPointer(this);
+	shapeData->m_name = (char*)serializer->getUniquePointer(name);
 	if (shapeData->m_name)
 	{
-		serializer->serializeName(shapeData->m_name);
+		serializer->serializeName(name);
 	}
 	shapeData->m_shapeType = m_shapeType;
 	//shapeData->m_padding//??
 	return "btCollisionShapeData";
 }
 
+void	btCollisionShape::serializeSingleShape(btSerializer* serializer) const
+{
+	int len = calculateSerializeBufferSize();
+	btChunk* chunk = serializer->allocate(len,1);
+	const char* structType = serialize(chunk->m_oldPtr, serializer);
+	serializer->finalizeChunk(chunk,structType,BT_SHAPE_CODE,(void*)this);
+}

@@ -24,8 +24,8 @@ http://gimpact.sf.net
 */
 
 
-#ifndef GENERIC_6DOF_CONSTRAINT_H
-#define GENERIC_6DOF_CONSTRAINT_H
+#ifndef BT_GENERIC_6DOF_CONSTRAINT_H
+#define BT_GENERIC_6DOF_CONSTRAINT_H
 
 #include "LinearMath/btVector3.h"
 #include "btJacobianEntry.h"
@@ -34,6 +34,14 @@ http://gimpact.sf.net
 class btRigidBody;
 
 
+
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btGeneric6DofConstraintData2		btGeneric6DofConstraintDoubleData2
+#define btGeneric6DofConstraintDataName	"btGeneric6DofConstraintDoubleData2"
+#else
+#define btGeneric6DofConstraintData2		btGeneric6DofConstraintData
+#define btGeneric6DofConstraintDataName	"btGeneric6DofConstraintData"
+#endif //BT_USE_DOUBLE_PRECISION
 
 
 //! Rotation Limit structure for generic joints
@@ -268,7 +276,7 @@ This brings support for limit parameters and motors. </li>
 </ul>
 
 */
-class btGeneric6DofConstraint : public btTypedConstraint
+ATTRIBUTE_ALIGNED16(class) btGeneric6DofConstraint : public btTypedConstraint
 {
 protected:
 
@@ -346,6 +354,8 @@ protected:
 
 public:
 
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+	
 	///for backwards compatibility during the transition to 'getInfo/getInfo2'
 	bool		m_useSolveConstraintObsolete;
 
@@ -433,6 +443,7 @@ public:
 	*/
 	btScalar getRelativePivotPosition(int axis_index) const;
 
+	void setFrames(const btTransform & frameA, const btTransform & frameB);
 
 	//! Test angular limit.
 	/*!
@@ -446,10 +457,20 @@ public:
     	m_linearLimits.m_lowerLimit = linearLower;
     }
 
-    void	setLinearUpperLimit(const btVector3& linearUpper)
-    {
-    	m_linearLimits.m_upperLimit = linearUpper;
-    }
+	void	getLinearLowerLimit(btVector3& linearLower)
+	{
+		linearLower = m_linearLimits.m_lowerLimit;
+	}
+
+	void	setLinearUpperLimit(const btVector3& linearUpper)
+	{
+		m_linearLimits.m_upperLimit = linearUpper;
+	}
+
+	void	getLinearUpperLimit(btVector3& linearUpper)
+	{
+		linearUpper = m_linearLimits.m_upperLimit;
+	}
 
     void	setAngularLowerLimit(const btVector3& angularLower)
     {
@@ -457,11 +478,23 @@ public:
 			m_angularLimits[i].m_loLimit = btNormalizeAngle(angularLower[i]);
     }
 
+	void	getAngularLowerLimit(btVector3& angularLower)
+	{
+		for(int i = 0; i < 3; i++) 
+			angularLower[i] = m_angularLimits[i].m_loLimit;
+	}
+
     void	setAngularUpperLimit(const btVector3& angularUpper)
     {
 		for(int i = 0; i < 3; i++)
 			m_angularLimits[i].m_hiLimit = btNormalizeAngle(angularUpper[i]);
     }
+
+	void	getAngularUpperLimit(btVector3& angularUpper)
+	{
+		for(int i = 0; i < 3; i++)
+			angularUpper[i] = m_angularLimits[i].m_hiLimit;
+	}
 
 	//! Retrieves the angular limit informacion
     btRotationalLimitMotor * getRotationalLimitMotor(int index)
@@ -525,6 +558,9 @@ public:
 	///return the local value of parameter
 	virtual	btScalar getParam(int num, int axis = -1) const;
 
+	void setAxis( const btVector3& axis1, const btVector3& axis2);
+
+
 	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
@@ -533,7 +569,7 @@ public:
 	
 };
 
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+
 struct btGeneric6DofConstraintData
 {
 	btTypedConstraintData	m_typeConstraintData;
@@ -550,20 +586,36 @@ struct btGeneric6DofConstraintData
 	int m_useOffsetForConstraintFrame;
 };
 
+struct btGeneric6DofConstraintDoubleData2
+{
+	btTypedConstraintDoubleData	m_typeConstraintData;
+	btTransformDoubleData m_rbAFrame; // constraint axii. Assumes z is hinge axis.
+	btTransformDoubleData m_rbBFrame;
+	
+	btVector3DoubleData	m_linearUpperLimit;
+	btVector3DoubleData	m_linearLowerLimit;
+
+	btVector3DoubleData	m_angularUpperLimit;
+	btVector3DoubleData	m_angularLowerLimit;
+	
+	int	m_useLinearReferenceFrameA;
+	int m_useOffsetForConstraintFrame;
+};
+
 SIMD_FORCE_INLINE	int	btGeneric6DofConstraint::calculateSerializeBufferSize() const
 {
-	return sizeof(btGeneric6DofConstraintData);
+	return sizeof(btGeneric6DofConstraintData2);
 }
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 SIMD_FORCE_INLINE	const char*	btGeneric6DofConstraint::serialize(void* dataBuffer, btSerializer* serializer) const
 {
 
-	btGeneric6DofConstraintData* dof = (btGeneric6DofConstraintData*)dataBuffer;
+	btGeneric6DofConstraintData2* dof = (btGeneric6DofConstraintData2*)dataBuffer;
 	btTypedConstraint::serialize(&dof->m_typeConstraintData,serializer);
 
-	m_frameInA.serializeFloat(dof->m_rbAFrame);
-	m_frameInB.serializeFloat(dof->m_rbBFrame);
+	m_frameInA.serialize(dof->m_rbAFrame);
+	m_frameInB.serialize(dof->m_rbBFrame);
 
 		
 	int i;
@@ -578,11 +630,11 @@ SIMD_FORCE_INLINE	const char*	btGeneric6DofConstraint::serialize(void* dataBuffe
 	dof->m_useLinearReferenceFrameA = m_useLinearReferenceFrameA? 1 : 0;
 	dof->m_useOffsetForConstraintFrame = m_useOffsetForConstraintFrame ? 1 : 0;
 
-	return "btGeneric6DofConstraintData";
+	return btGeneric6DofConstraintDataName;
 }
 
 
 
 
 
-#endif //GENERIC_6DOF_CONSTRAINT_H
+#endif //BT_GENERIC_6DOF_CONSTRAINT_H

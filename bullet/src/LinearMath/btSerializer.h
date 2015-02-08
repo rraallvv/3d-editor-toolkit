@@ -17,7 +17,6 @@ subject to the following restrictions:
 #define BT_SERIALIZER_H
 
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
-#include "btStackAlloc.h"
 #include "btHashMap.h"
 
 #if !defined( __CELLOS_LV2__) && !defined(__MWERKS__)
@@ -28,9 +27,9 @@ subject to the following restrictions:
 
 
 ///only the 32bit versions for now
-extern unsigned char sBulletDNAstr[];
+extern char sBulletDNAstr[];
 extern int sBulletDNAlen;
-extern unsigned char sBulletDNAstr64[];
+extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
 
 SIMD_FORCE_INLINE	int btStrLen(const char* str) 
@@ -59,6 +58,13 @@ public:
 	int		m_number;
 };
 
+enum	btSerializationFlags
+{
+	BT_SERIALIZE_NO_BVH = 1,
+	BT_SERIALIZE_NO_TRIANGLEINFOMAP = 2,
+	BT_SERIALIZE_NO_DUPLICATE_ASSERT = 4
+};
+
 class	btSerializer
 {
 
@@ -76,6 +82,8 @@ public:
 
 	virtual	 void*	findPointer(void* oldPtr)  = 0;
 
+	virtual	void*	getUniquePointer(void*oldPtr) = 0;
+
 	virtual	void	startSerialization() = 0;
 	
 	virtual	void	finishSerialization() = 0;
@@ -86,26 +94,48 @@ public:
 
 	virtual void	serializeName(const char* ptr) = 0;
 
+	virtual int		getSerializationFlags() const = 0;
+
+	virtual void	setSerializationFlags(int flags) = 0;
+
+
 };
 
 
 
 #define BT_HEADER_LENGTH 12
 #if defined(__sgi) || defined (__sparc) || defined (__sparc__) || defined (__PPC__) || defined (__ppc__) || defined (__BIG_ENDIAN__)
-#	define MAKE_ID(a,b,c,d) ( (int)(a)<<24 | (int)(b)<<16 | (c)<<8 | (d) )
+#	define BT_MAKE_ID(a,b,c,d) ( (int)(a)<<24 | (int)(b)<<16 | (c)<<8 | (d) )
 #else
-#	define MAKE_ID(a,b,c,d) ( (int)(d)<<24 | (int)(c)<<16 | (b)<<8 | (a) )
+#	define BT_MAKE_ID(a,b,c,d) ( (int)(d)<<24 | (int)(c)<<16 | (b)<<8 | (a) )
 #endif
 
-#define BT_COLLISIONOBJECT_CODE MAKE_ID('C','O','B','J')
-#define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
-#define BT_CONSTRAINT_CODE		MAKE_ID('C','O','N','S')
-#define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
-#define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
-#define BT_ARRAY_CODE			MAKE_ID('A','R','A','Y')
+#define BT_SOFTBODY_CODE		BT_MAKE_ID('S','B','D','Y')
+#define BT_COLLISIONOBJECT_CODE BT_MAKE_ID('C','O','B','J')
+#define BT_RIGIDBODY_CODE		BT_MAKE_ID('R','B','D','Y')
+#define BT_CONSTRAINT_CODE		BT_MAKE_ID('C','O','N','S')
+#define BT_BOXSHAPE_CODE		BT_MAKE_ID('B','O','X','S')
+#define BT_QUANTIZED_BVH_CODE	BT_MAKE_ID('Q','B','V','H')
+#define BT_TRIANLGE_INFO_MAP	BT_MAKE_ID('T','M','A','P')
+#define BT_SHAPE_CODE			BT_MAKE_ID('S','H','A','P')
+#define BT_ARRAY_CODE			BT_MAKE_ID('A','R','A','Y')
+#define BT_SBMATERIAL_CODE		BT_MAKE_ID('S','B','M','T')
+#define BT_SBNODE_CODE			BT_MAKE_ID('S','B','N','D')
+#define BT_DYNAMICSWORLD_CODE	BT_MAKE_ID('D','W','L','D')
+#define BT_DNA_CODE				BT_MAKE_ID('D','N','A','1')
 
 
+struct	btPointerUid
+{
+	union
+	{
+		void*	m_ptr;
+		int		m_uniqueIds[2];
+	};
+};
 
+///The btDefaultSerializer is the main Bullet serialization class.
+///The constructor takes an optional argument for backwards compatibility, it is recommended to leave this empty/zero.
 class btDefaultSerializer	:	public btSerializer
 {
 
@@ -121,12 +151,16 @@ class btDefaultSerializer	:	public btSerializer
 	
 	btHashMap<btHashPtr,const char*>	m_nameMap;
 
+	btHashMap<btHashPtr,btPointerUid>	m_uniquePointers;
+	int	m_uniqueIdGenerator;
 
 	int					m_totalSize;
 	unsigned char*		m_buffer;
 	int					m_currentSize;
 	void*				m_dna;
 	int					m_dnaLength;
+
+	int					m_serializationFlags;
 
 
 	btAlignedObjectArray<btChunk*>	m_chunkPtrs;
@@ -141,13 +175,15 @@ protected:
 		return 0;
 	}
 
+	
+
 
 
 		void	writeDNA()
 		{
-			unsigned char* dnaTarget = m_buffer+m_currentSize;
-			memcpy(dnaTarget,m_dna,m_dnaLength);
-			m_currentSize += m_dnaLength;
+			btChunk* dnaChunk = allocate(m_dnaLength,1);
+			memcpy(dnaChunk->m_oldPtr,m_dna,m_dnaLength);
+			finalizeChunk(dnaChunk,"DNA1",BT_DNA_CODE, m_dna);
 		}
 
 		int getReverseType(const char *type) const
@@ -177,7 +213,7 @@ protected:
 
 			int *intPtr=0;
 			short *shtPtr=0;
-			char *cp = 0;int dataLen =0;long nr=0;
+			char *cp = 0;int dataLen =0;
 			intPtr = (int*)m_dna;
 
 			/*
@@ -210,15 +246,7 @@ protected:
 				while (*cp)cp++;
 				cp++;
 			}
-			{
-				nr= (long)cp;
-			//	long mask=3;
-				nr= ((nr+3)&~3)-nr;
-				while (nr--)
-				{
-					cp++;
-				}
-			}
+			cp = btAlignPointer(cp,4);
 
 			/*
 				TYPE (4 bytes)
@@ -228,7 +256,7 @@ protected:
 			*/
 
 			intPtr = (int*)cp;
-			assert(strncmp(cp, "TYPE", 4)==0); intPtr++;
+			btAssert(strncmp(cp, "TYPE", 4)==0); intPtr++;
 
 			if (!littleEndian)
 				*intPtr =  btSwapEndian(*intPtr);
@@ -245,15 +273,7 @@ protected:
 				cp++;
 			}
 
-		{
-				nr= (long)cp;
-			//	long mask=3;
-				nr= ((nr+3)&~3)-nr;
-				while (nr--)
-				{
-					cp++;
-				}
-			}
+			cp = btAlignPointer(cp,4);
 
 
 			/*
@@ -264,7 +284,7 @@ protected:
 
 			// Parse type lens
 			intPtr = (int*)cp;
-			assert(strncmp(cp, "TLEN", 4)==0); intPtr++;
+			btAssert(strncmp(cp, "TLEN", 4)==0); intPtr++;
 
 			dataLen = (int)mTypes.size();
 
@@ -291,7 +311,7 @@ protected:
 
 			intPtr = (int*)shtPtr;
 			cp = (char*)intPtr;
-			assert(strncmp(cp, "STRC", 4)==0); intPtr++;
+			btAssert(strncmp(cp, "STRC", 4)==0); intPtr++;
 
 			if (!littleEndian)
 				*intPtr = btSwapEndian(*intPtr);
@@ -338,13 +358,14 @@ public:
 
 	
 
-		btDefaultSerializer(int totalSize)
+		btDefaultSerializer(int totalSize=0)
 			:m_totalSize(totalSize),
 			m_currentSize(0),
 			m_dna(0),
-			m_dnaLength(0)
+			m_dnaLength(0),
+			m_serializationFlags(0)
 		{
-			m_buffer = (unsigned char*)btAlignedAlloc(totalSize, 16);
+			m_buffer = m_totalSize?(unsigned char*)btAlignedAlloc(totalSize,16):0;
 			
 			const bool VOID_IS_8 = ((sizeof(void*)==8));
 
@@ -385,14 +406,14 @@ public:
 				btAlignedFree(m_dna);
 		}
 
-		virtual	void	startSerialization()
+		void	writeHeader(unsigned char* buffer) const
 		{
-			m_currentSize = BT_HEADER_LENGTH;
+			
 
 #ifdef  BT_USE_DOUBLE_PRECISION
-			memcpy(m_buffer, "BULLETd", 7);
+			memcpy(buffer, "BULLETd", 7);
 #else
-			memcpy(m_buffer, "BULLETf", 7);
+			memcpy(buffer, "BULLETf", 7);
 #endif //BT_USE_DOUBLE_PRECISION
 	
 			int littleEndian= 1;
@@ -400,33 +421,96 @@ public:
 
 			if (sizeof(void*)==8)
 			{
-				m_buffer[7] = '-';
+				buffer[7] = '-';
 			} else
 			{
-				m_buffer[7] = '_';
+				buffer[7] = '_';
 			}
 
 			if (littleEndian)
 			{
-				m_buffer[8]='v';				
+				buffer[8]='v';				
 			} else
 			{
-				m_buffer[8]='V';
+				buffer[8]='V';
 			}
 
 
-			m_buffer[9] = '2';
-			m_buffer[10] = '7';
-			m_buffer[11] = '6';
+			buffer[9] = '2';
+			buffer[10] = '8';
+			buffer[11] = '2';
 
+		}
+
+		virtual	void	startSerialization()
+		{
+			m_uniqueIdGenerator= 1;
+			if (m_totalSize)
+			{
+				unsigned char* buffer = internalAlloc(BT_HEADER_LENGTH);
+				writeHeader(buffer);
+			}
 			
 		}
 
 		virtual	void	finishSerialization()
 		{
 			writeDNA();
+
+			//if we didn't pre-allocate a buffer, we need to create a contiguous buffer now
+			int mysize = 0;
+			if (!m_totalSize)
+			{
+				if (m_buffer)
+					btAlignedFree(m_buffer);
+
+				m_currentSize += BT_HEADER_LENGTH;
+				m_buffer = (unsigned char*)btAlignedAlloc(m_currentSize,16);
+
+				unsigned char* currentPtr = m_buffer;
+				writeHeader(m_buffer);
+				currentPtr += BT_HEADER_LENGTH;
+				mysize+=BT_HEADER_LENGTH;
+				for (int i=0;i<	m_chunkPtrs.size();i++)
+				{
+					int curLength = sizeof(btChunk)+m_chunkPtrs[i]->m_length;
+					memcpy(currentPtr,m_chunkPtrs[i], curLength);
+					btAlignedFree(m_chunkPtrs[i]);
+					currentPtr+=curLength;
+					mysize+=curLength;
+				}
+			}
+
+			mTypes.clear();
+			mStructs.clear();
+			mTlens.clear();
+			mStructReverse.clear();
+			mTypeLookup.clear();
+			m_chunkP.clear();
+			m_nameMap.clear();
+			m_uniquePointers.clear();
+			m_chunkPtrs.clear();
 		}
 
+		virtual	void*	getUniquePointer(void*oldPtr)
+		{
+			if (!oldPtr)
+				return 0;
+
+			btPointerUid* uptr = (btPointerUid*)m_uniquePointers.find(oldPtr);
+			if (uptr)
+			{
+				return uptr->m_ptr;
+			}
+			m_uniqueIdGenerator++;
+			
+			btPointerUid uid;
+			uid.m_uniqueIds[0] = m_uniqueIdGenerator;
+			uid.m_uniqueIds[1] = m_uniqueIdGenerator;
+			m_uniquePointers.insert(oldPtr,uid);
+			return uid.m_ptr;
+
+		}
 
 		virtual	const unsigned char*		getBufferPointer() const
 		{
@@ -440,26 +524,46 @@ public:
 
 		virtual	void	finalizeChunk(btChunk* chunk, const char* structType, int chunkCode,void* oldPtr)
 		{
-			btAssert(!findPointer(oldPtr));
+			if (!(m_serializationFlags&BT_SERIALIZE_NO_DUPLICATE_ASSERT))
+			{
+				btAssert(!findPointer(oldPtr));
+			}
 
 			chunk->m_dna_nr = getReverseType(structType);
 			
 			chunk->m_chunkCode = chunkCode;
-			m_chunkP.insert(oldPtr,chunk->m_oldPtr);
-			chunk->m_oldPtr = oldPtr;
+			
+			void* uniquePtr = getUniquePointer(oldPtr);
+			
+			m_chunkP.insert(oldPtr,uniquePtr);//chunk->m_oldPtr);
+			chunk->m_oldPtr = uniquePtr;//oldPtr;
 			
 		}
 
 		
+		virtual unsigned char* internalAlloc(size_t size)
+		{
+			unsigned char* ptr = 0;
+
+			if (m_totalSize)
+			{
+				ptr = m_buffer+m_currentSize;
+				m_currentSize += int(size);
+				btAssert(m_currentSize<m_totalSize);
+			} else
+			{
+				ptr = (unsigned char*)btAlignedAlloc(size,16);
+				m_currentSize += int(size);
+			}
+			return ptr;
+		}
 
 		
 
 		virtual	btChunk*	allocate(size_t size, int numElements)
 		{
 
-			unsigned char* ptr = m_buffer+m_currentSize;
-			m_currentSize += int(size)*numElements+sizeof(btChunk);
-			btAssert(m_currentSize<m_totalSize);
+			unsigned char* ptr = internalAlloc(int(size)*numElements+sizeof(btChunk));
 
 			unsigned char* data = ptr + sizeof(btChunk);
 			
@@ -493,6 +597,10 @@ public:
 		{
 			if (name)
 			{
+				//don't serialize name twice
+				if (findPointer((void*)name))
+					return;
+
 				int len = btStrLen(name);
 				if (len)
 				{
@@ -513,6 +621,17 @@ public:
 				}
 			}
 		}
+
+		virtual int		getSerializationFlags() const
+		{
+			return m_serializationFlags;
+		}
+
+		virtual void	setSerializationFlags(int flags)
+		{
+			m_serializationFlags = flags;
+		}
+
 };
 
 

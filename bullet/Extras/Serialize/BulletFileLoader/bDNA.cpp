@@ -20,6 +20,10 @@ subject to the following restrictions:
 #include <stdlib.h>
 #include <stdio.h>
 
+//this define will force traversal of structures, to check backward (and forward) compatibility
+//#define TEST_BACKWARD_FORWARD_COMPATIBILITY
+
+
 using namespace bParse;
 
 
@@ -213,7 +217,8 @@ void bDNA::initCmpFlags(bDNA *memDNA)
 			// rebuild...
 			mCMPFlags[i] = FDF_STRUCT_NEQU;
 
-#if 1
+#ifndef TEST_BACKWARD_FORWARD_COMPATIBILITY
+
 			if (curStruct[1] == oldStruct[1])
 			{
 				// type len same ...
@@ -342,7 +347,6 @@ static int name_is_array(char* name, int* dim1, int* dim2) {
 // ----------------------------------------------------- //
 void bDNA::init(char *data, int len, bool swap)
 {
-	printf("swap = %d\n",swap);
 	int *intPtr=0;short *shtPtr=0;
 	char *cp = 0;int dataLen =0;long nr=0;
 	intPtr = (int*)data;
@@ -364,8 +368,11 @@ void bDNA::init(char *data, int len, bool swap)
 
 
 	// Parse names
-	if (swap) dataLen = ChunkUtils::swapInt(*intPtr);
-	else      dataLen = *intPtr;
+	if (swap) 
+	{
+		*intPtr = ChunkUtils::swapInt(*intPtr);
+	}
+	dataLen = *intPtr;
 	intPtr++;
 
 	cp = (char*)intPtr;
@@ -403,8 +410,11 @@ void bDNA::init(char *data, int len, bool swap)
 	intPtr = (int*)cp;
 	assert(strncmp(cp, "TYPE", 4)==0); intPtr++;
 
-	if (swap) dataLen = ChunkUtils::swapInt(*intPtr);
-	else      dataLen = *intPtr;
+	if (swap) 
+	{
+		*intPtr = ChunkUtils::swapInt(*intPtr);
+	}
+	dataLen = *intPtr;
 	intPtr++;
 
 	cp = (char*)intPtr;
@@ -463,8 +473,11 @@ void bDNA::init(char *data, int len, bool swap)
 	cp = (char*)intPtr;
 	assert(strncmp(cp, "STRC", 4)==0); intPtr++;
 
-	if (swap) dataLen = ChunkUtils::swapInt(*intPtr);
-	else      dataLen = *intPtr;
+	if (swap) 
+	{
+		*intPtr = ChunkUtils::swapInt(*intPtr);
+	}
+	dataLen = *intPtr;
 	intPtr++;
 
 

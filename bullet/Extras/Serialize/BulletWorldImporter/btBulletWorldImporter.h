@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2010 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2012 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -17,24 +17,14 @@ subject to the following restrictions:
 #ifndef BULLET_WORLD_IMPORTER_H
 #define BULLET_WORLD_IMPORTER_H
 
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btAlignedObjectArray.h"
-#include "LinearMath/btHashMap.h"
+
+#include "btWorldImporter.h"
+
 
 class btBulletFile;
-class btCollisionShape;
-class btCollisionObject;
-class btRigidBody;
-class btTypedConstraint;
-class btDynamicsWorld;
-struct ConstraintInput;
-class btRigidBodyColladaInfo;
-struct btCollisionShapeData;
-class btTriangleIndexVertexArray;
-class btStridingMeshInterface;
-struct btStridingMeshInterfaceData;
-class btGImpactMeshShape;
+
+
+
 
 namespace bParse
 {
@@ -43,81 +33,34 @@ namespace bParse
 };
 
 
-class btBulletWorldImporter
+
+///The btBulletWorldImporter is a starting point to import .bullet files.
+///note that not all data is converted yet. You are expected to override or modify this class.
+///See Bullet/Demos/SerializeDemo for a derived class that extract btSoftBody objects too.
+class btBulletWorldImporter : public btWorldImporter
 {
-protected:
 
-	btDynamicsWorld* m_dynamicsWorld;
 
-	bool m_verboseDumpAllTypes;
-
-	btCollisionShape* convertCollisionShape(  btCollisionShapeData* shapeData  );
-
-	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
-
-	btTriangleIndexVertexArray* createMeshInterface(btStridingMeshInterfaceData& meshData);
-
-	static btRigidBody& getFixedBody();
-	
 public:
 	
-	btBulletWorldImporter(btDynamicsWorld* world);
+	btBulletWorldImporter(btDynamicsWorld* world=0);
 
 	virtual ~btBulletWorldImporter();
 
-	bool	loadFile(const char* fileName);
+	///if you pass a valid preSwapFilenameOut, it will save a new file with a different endianness 
+	///this pre-swapped file can be loaded without swapping on a target platform of different endianness
+	bool	loadFile(const char* fileName, const char* preSwapFilenameOut=0);
 
 	///the memoryBuffer might be modified (for example if endian swaps are necessary)
 	bool	loadFileFromMemory(char *memoryBuffer, int len);
 
 	bool	loadFileFromMemory(bParse::btBulletFile* file);
 
-	void	setVerboseMode(bool verboseDumpAllTypes)
-	{
-		m_verboseDumpAllTypes = verboseDumpAllTypes;
-	}
+	//call make sure bulletFile2 has been parsed, either using btBulletFile::parse or btBulletWorldImporter::loadFileFromMemory
+	virtual	bool	convertAllObjects(bParse::btBulletFile* file);
 
-	bool getVerboseMode() const
-	{
-		return m_verboseDumpAllTypes;
-	}
 	
-	///those virtuals are called by load
-	virtual btTypedConstraint*			createUniversalD6Constraint(
-		class btRigidBody* body0,class btRigidBody* otherBody,
-			btTransform& localAttachmentFrameRef,
-			btTransform& localAttachmentOther,
-			const btVector3& linearMinLimits,
-			const btVector3& linearMaxLimits,
-			const btVector3& angularMinLimits,
-			const btVector3& angularMaxLimits,
-			bool disableCollisionsBetweenLinkedBodies
-			);
-	
-	virtual btRigidBody*  createRigidBody(bool isDynamic, 
-		btScalar mass, 
-		const btTransform& startTransform,
-		btCollisionShape* shape);
 
-	virtual btCollisionObject*  createCollisionObject(	const btTransform& startTransform,	btCollisionShape* shape);
-
-
-	virtual btCollisionShape* createPlaneShape(const btVector3& planeNormal,btScalar planeConstant);
-	virtual btCollisionShape* createBoxShape(const btVector3& halfExtents);
-	virtual btCollisionShape* createSphereShape(btScalar radius);
-	virtual btCollisionShape* createCapsuleShapeX(btScalar radius, btScalar height);
-	virtual btCollisionShape* createCapsuleShapeY(btScalar radius, btScalar height);
-	virtual btCollisionShape* createCapsuleShapeZ(btScalar radius, btScalar height);
-	
-	virtual btCollisionShape* createCylinderShapeX(btScalar radius,btScalar height);
-	virtual btCollisionShape* createCylinderShapeY(btScalar radius,btScalar height);
-	virtual btCollisionShape* createCylinderShapeZ(btScalar radius,btScalar height);
-	virtual class btTriangleIndexVertexArray*	createTriangleMeshContainer();
-	virtual	btCollisionShape* createBvhTriangleMeshShape(btStridingMeshInterface* trimesh);
-	virtual btCollisionShape* createConvexTriangleMeshShape(btStridingMeshInterface* trimesh);
-	virtual btGImpactMeshShape* createGimpactShape(btStridingMeshInterface* trimesh);
-	virtual class btConvexHullShape* createConvexHullShape();
-	virtual class btCompoundShape* createCompoundShape();
 
 };
 

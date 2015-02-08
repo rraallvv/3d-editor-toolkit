@@ -26,17 +26,17 @@ subject to the following restrictions:
 // 32 && 64 bit versions
 #ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #ifdef _WIN64
-extern unsigned char sBulletDNAstr64[];
+extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
 #else
-extern unsigned char sBulletDNAstr[];
+extern char sBulletDNAstr[];
 extern int sBulletDNAlen;
 #endif //_WIN64
 #else//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
-extern unsigned char sBulletDNAstr64[];
+extern char sBulletDNAstr64[];
 extern int sBulletDNAlen64;
-extern unsigned char sBulletDNAstr[];
+extern char sBulletDNAstr[];
 extern int sBulletDNAlen;
 
 #endif //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
@@ -46,7 +46,8 @@ using namespace bParse;
 btBulletFile::btBulletFile()
 :bFile("", "BULLET ")
 {
-	mMemoryDNA = new bDNA();
+	mMemoryDNA = new bDNA(); //this memory gets released in the bFile::~bFile destructor,@todo not consistent with the rule 'who allocates it, has to deallocate it"
+
 	m_DnaCopy = 0;
 
 
@@ -97,6 +98,15 @@ btBulletFile::~btBulletFile()
 {
 	if (m_DnaCopy)
 		btAlignedFree(m_DnaCopy);
+
+	
+	while (m_dataBlocks.size())
+	{
+		char* dataBlock = m_dataBlocks[m_dataBlocks.size()-1];
+		delete[] dataBlock;
+		m_dataBlocks.pop_back();
+	}
+
 }
 
 
@@ -104,9 +114,11 @@ btBulletFile::~btBulletFile()
 // ----------------------------------------------------- //
 void btBulletFile::parseData()
 {
-	printf ("Building datablocks");
-	printf ("Chunk size = %d",CHUNK_HEADER_LEN);
-	printf ("File chunk size = %d",ChunkUtils::getOffset(mFlags));
+//	printf ("Building datablocks");
+//	printf ("Chunk size = %d",CHUNK_HEADER_LEN);
+//	printf ("File chunk size = %d",ChunkUtils::getOffset(mFlags));
+
+	const bool brokenDNA = (mFlags&FD_BROKEN_DNA)!=0;
 
 	//const bool swap = (mFlags&FD_ENDIAN_SWAP)!=0;
 	
@@ -120,71 +132,105 @@ void btBulletFile::parseData()
 
 
 	//dataPtr += ChunkUtils::getNextBlock(&dataChunk, dataPtr, mFlags);
-	int seek = ChunkUtils::getNextBlock(&dataChunk, dataPtr, mFlags);
+	int seek = getNextBlock(&dataChunk, dataPtr, mFlags);
+	
+	
+	if (mFlags &FD_ENDIAN_SWAP) 
+		swapLen(dataPtr);
+
 	//dataPtr += ChunkUtils::getOffset(mFlags);
 	char *dataPtrHead = 0;
 
 	while (dataChunk.code != DNA1)
 	{
-		
-
-
-
-		// one behind
-		if (dataChunk.code == SDNA) break;
-		//if (dataChunk.code == DNA1) break;
-
-		// same as (BHEAD+DATA dependancy)
-		dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
-		if (dataChunk.dna_nr>=0)
+		if (!brokenDNA || (dataChunk.code != BT_QUANTIZED_BVH_CODE) )
 		{
-			char *id = readStruct(dataPtrHead, dataChunk);
 
-			// lookup maps
-			if (id)
+			// one behind
+			if (dataChunk.code == SDNA) break;
+			//if (dataChunk.code == DNA1) break;
+
+			// same as (BHEAD+DATA dependency)
+			dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
+			if (dataChunk.dna_nr>=0)
 			{
-				mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)id);
+				char *id = readStruct(dataPtrHead, dataChunk);
 
-				m_chunks.push_back(dataChunk);
-				// block it
-				//bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
-				//if (listID)
-				//	listID->push_back((bStructHandle*)id);
-			}
+				// lookup maps
+				if (id)
+				{
+					m_chunkPtrPtrMap.insert(dataChunk.oldPtr, dataChunk);
+					mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)id);
 
-			if (dataChunk.code == BT_RIGIDBODY_CODE)
+					m_chunks.push_back(dataChunk);
+					// block it
+					//bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
+					//if (listID)
+					//	listID->push_back((bStructHandle*)id);
+				}
+
+				if (dataChunk.code == BT_SOFTBODY_CODE)
+				{
+					m_softBodies.push_back((bStructHandle*) id);
+				}
+				
+				if (dataChunk.code == BT_RIGIDBODY_CODE)
+				{
+					m_rigidBodies.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_DYNAMICSWORLD_CODE)
+				{
+					m_dynamicsWorldInfo.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_CONSTRAINT_CODE)
+				{
+					m_constraints.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_QUANTIZED_BVH_CODE)
+				{
+					m_bvhs.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_TRIANLGE_INFO_MAP)
+				{
+					m_triangleInfoMaps.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
+				{
+					m_collisionObjects.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_SHAPE_CODE)
+				{
+					m_collisionShapes.push_back((bStructHandle*) id);
+				}
+
+		//		if (dataChunk.code == GLOB)
+		//		{
+		//			m_glob = (bStructHandle*) id;
+		//		}
+			} else
 			{
-				m_rigidBodies.push_back((bStructHandle*) id);
-			}
+				printf("unknown chunk\n");
 
-			if (dataChunk.code == BT_CONSTRAINT_CODE)
-			{
-				m_constraints.push_back((bStructHandle*) id);
+				mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)dataPtrHead);
 			}
-
-			if (dataChunk.code == BT_COLLISIONOBJECT_CODE)
-			{
-				m_collisionObjects.push_back((bStructHandle*) id);
-			}
-
-			if (dataChunk.code == BT_SHAPE_CODE)
-			{
-				m_collisionShapes.push_back((bStructHandle*) id);
-			}
-
-	//		if (dataChunk.code == GLOB)
-	//		{
-	//			m_glob = (bStructHandle*) id;
-	//		}
 		} else
 		{
-			printf("unknown chunk\n");
+			printf("skipping BT_QUANTIZED_BVH_CODE due to broken DNA\n");
 		}
 
-		// next please!
+		
 		dataPtr += seek;
 
-		seek =  ChunkUtils::getNextBlock(&dataChunk, dataPtr, mFlags);
+		seek =  getNextBlock(&dataChunk, dataPtr, mFlags);
+		if (mFlags &FD_ENDIAN_SWAP) 
+			swapLen(dataPtr);
+
 		if (seek < 0)
 			break;
 	}
@@ -193,7 +239,8 @@ void btBulletFile::parseData()
 
 void	btBulletFile::addDataBlock(char* dataBlock)
 {
-	//mMain->addDatablock(dataBlock);
+	m_dataBlocks.push_back(dataBlock);
+
 }
 
 
@@ -248,7 +295,7 @@ void	btBulletFile::writeDNA(FILE* fp)
 }
 
 
-void	btBulletFile::parse(bool verboseDumpAllTypes)
+void	btBulletFile::parse(int verboseMode)
 {
 #ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
@@ -259,8 +306,7 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 			delete m_DnaCopy;
 		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
 		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
-		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen64);
-		parseInternal(verboseDumpAllTypes,(char*)sBulletDNAstr64,sBulletDNAlen64);
+		parseInternal(verboseMode,(char*)sBulletDNAstr64,sBulletDNAlen64);
 #else
 		btAssert(0);
 #endif
@@ -273,8 +319,7 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 			delete m_DnaCopy;
 		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
 		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
-		mMemoryDNA->init(m_DnaCopy,sBulletDNAlen);
-		parseInternal(verboseDumpAllTypes,m_DnaCopy,sBulletDNAlen);
+		parseInternal(verboseMode,m_DnaCopy,sBulletDNAlen);
 #else
 		btAssert(0);
 #endif
@@ -286,7 +331,7 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 			delete m_DnaCopy;
 		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64,16);
 		memcpy(m_DnaCopy,sBulletDNAstr64,sBulletDNAlen64);
-		parseInternal(verboseDumpAllTypes,m_DnaCopy,sBulletDNAlen64);
+		parseInternal(verboseMode,m_DnaCopy,sBulletDNAlen64);
 	}
 	else
 	{
@@ -294,9 +339,18 @@ void	btBulletFile::parse(bool verboseDumpAllTypes)
 			delete m_DnaCopy;
 		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen,16);
 		memcpy(m_DnaCopy,sBulletDNAstr,sBulletDNAlen);
-		parseInternal(verboseDumpAllTypes,m_DnaCopy,sBulletDNAlen);
+		parseInternal(verboseMode,m_DnaCopy,sBulletDNAlen);
 	}
 #endif//BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
+	
+	//the parsing will convert to cpu endian
+	mFlags &=~FD_ENDIAN_SWAP;
+
+	int littleEndian= 1;
+	littleEndian= ((char*)&littleEndian)[0];
+	
+	mFileBuffer[8] = littleEndian?'v':'V';
+	
 }
 
 // experimental
@@ -359,7 +413,8 @@ void	btBulletFile::addStruct(const	char* structType,void* data, int len, void* o
 
 	///Perform structure size validation
 	short* structInfo= mMemoryDNA->getStruct(dataChunk.dna_nr);
-	int elemBytes = mMemoryDNA->getLength(structInfo[0]);
+	int elemBytes;
+	elemBytes= mMemoryDNA->getLength(structInfo[0]);
 //	int elemBytes = mMemoryDNA->getElementSize(structInfo[0],structInfo[1]);
 	assert(len==elemBytes);
 

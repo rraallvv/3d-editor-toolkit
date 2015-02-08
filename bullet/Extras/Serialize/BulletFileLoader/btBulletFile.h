@@ -21,11 +21,8 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "bDefines.h"
 
-#define BT_COLLISIONOBJECT_CODE MAKE_ID('C','O','B','J')
-#define BT_RIGIDBODY_CODE		MAKE_ID('R','B','D','Y')
-#define BT_CONSTRAINT_CODE		MAKE_ID('C','O','N','S')
-#define BT_BOXSHAPE_CODE		MAKE_ID('B','O','X','S')
-#define BT_SHAPE_CODE			MAKE_ID('S','H','A','P')
+#include "LinearMath/btSerializer.h"
+
 
 
 namespace bParse {
@@ -41,6 +38,8 @@ namespace bParse {
 				
 	public:
 
+		btAlignedObjectArray<bStructHandle*>	m_softBodies;
+
 		btAlignedObjectArray<bStructHandle*>	m_rigidBodies;
 
 		btAlignedObjectArray<bStructHandle*>	m_collisionObjects;
@@ -48,7 +47,14 @@ namespace bParse {
 		btAlignedObjectArray<bStructHandle*>	m_collisionShapes;
 
 		btAlignedObjectArray<bStructHandle*>	m_constraints;
-		
+
+		btAlignedObjectArray<bStructHandle*>	m_bvhs;
+
+		btAlignedObjectArray<bStructHandle*>	m_triangleInfoMaps;
+
+		btAlignedObjectArray<bStructHandle*>	m_dynamicsWorldInfo;
+
+		btAlignedObjectArray<char*>				m_dataBlocks;
 		btBulletFile();
 
 		btBulletFile(const char* fileName);
@@ -63,7 +69,7 @@ namespace bParse {
 		// experimental
 		virtual int		write(const char* fileName, bool fixupPointers=false);
 
-		virtual	void	parse(bool verboseDumpAllTypes);
+		virtual	void	parse(int verboseMode);
 
 		virtual	void parseData();
 

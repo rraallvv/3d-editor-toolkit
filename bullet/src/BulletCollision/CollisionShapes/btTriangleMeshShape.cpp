@@ -55,13 +55,9 @@ void btTriangleMeshShape::getAabb(const btTransform& trans,btVector3& aabbMin,bt
 
 	btVector3 center = trans(localCenter);
 
-	btVector3 extent = btVector3(abs_b[0].dot(localHalfExtents),
-		   abs_b[1].dot(localHalfExtents),
-		  abs_b[2].dot(localHalfExtents));
+    btVector3 extent = localHalfExtents.dot3(abs_b[0], abs_b[1], abs_b[2]);
 	aabbMin = center - extent;
 	aabbMax = center + extent;
-
-
 }
 
 void	btTriangleMeshShape::recalcLocalAabb()
@@ -209,16 +205,3 @@ btVector3 btTriangleMeshShape::localGetSupportingVertex(const btVector3& vec) co
 }
 
 
-///fills the dataBuffer and returns the struct name (and 0 on failure)
-const char*	btTriangleMeshShape::serialize(void* dataBuffer, btSerializer* serializer) const
-{
-	btTriangleMeshShapeData* trimeshData = (btTriangleMeshShapeData*) dataBuffer;
-
-	btCollisionShape::serialize(&trimeshData->m_collisionShapeData,serializer);
-
-	m_meshInterface->serialize(&trimeshData->m_meshInterface, serializer);
-
-	trimeshData->m_collisionMargin = float(m_collisionMargin);
-
-	return "btTriangleMeshShapeData";
-}

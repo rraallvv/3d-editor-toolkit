@@ -13,16 +13,15 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef TRIANGLE_MESH_SHAPE_H
-#define TRIANGLE_MESH_SHAPE_H
+#ifndef BT_TRIANGLE_MESH_SHAPE_H
+#define BT_TRIANGLE_MESH_SHAPE_H
 
 #include "btConcaveShape.h"
 #include "btStridingMeshInterface.h"
 
 
-
 ///The btTriangleMeshShape is an internal concave triangle mesh interface. Don't use this class directly, use btBvhTriangleMeshShape instead.
-class btTriangleMeshShape : public btConcaveShape
+ATTRIBUTE_ALIGNED16(class) btTriangleMeshShape : public btConcaveShape
 {
 protected:
 	btVector3	m_localAabbMin;
@@ -34,6 +33,7 @@ protected:
 	btTriangleMeshShape(btStridingMeshInterface* meshInterface);
 
 public:
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	virtual ~btTriangleMeshShape();
 
@@ -80,32 +80,11 @@ public:
 	//debugging
 	virtual const char*	getName()const {return "TRIANGLEMESH";}
 
-	virtual	int	calculateSerializeBufferSize() const;
-
-	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
-
+	
 
 };
 
-///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btTriangleMeshShapeData
-{
-	btCollisionShapeData	m_collisionShapeData;
-
-	btStridingMeshInterfaceData m_meshInterface;
-
-	float	m_collisionMargin;
-
-	char m_padding[4];
-};
-
-
-SIMD_FORCE_INLINE	int	btTriangleMeshShape::calculateSerializeBufferSize() const
-{
-	return sizeof(btTriangleMeshShapeData);
-}
 
 
 
-#endif //TRIANGLE_MESH_SHAPE_H
+#endif //BT_TRIANGLE_MESH_SHAPE_H
