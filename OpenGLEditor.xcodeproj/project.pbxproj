@@ -48,6 +48,7 @@
 		A7D28895110107510092B9DC /* libobjc.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A7D28894110107510092B9DC /* libobjc.A.dylib */; };
 		A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D7733B10A77DAC0068353E /* IndexedItem.mm */; };
 		A7DAC286111622CA005381CC /* ExperimentalBulletWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7DAC285111622CA005381CC /* ExperimentalBulletWrapper.mm */; };
+		E41CBED61A8EA1F00041908D /* MyApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E41CBED51A8EA1F00041908D /* MyApplicationDelegate.m */; };
 		E4E97B621A873FBE00C87278 /* bChunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E97A111A873FBE00C87278 /* bChunk.cpp */; };
 		E4E97B631A873FBE00C87278 /* bDNA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E97A151A873FBE00C87278 /* bDNA.cpp */; };
 		E4E97B641A873FBE00C87278 /* bFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E97A171A873FBE00C87278 /* bFile.cpp */; };
@@ -274,6 +275,8 @@
 		A7DAC284111622CA005381CC /* ExperimentalBulletWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExperimentalBulletWrapper.h; sourceTree = "<group>"; };
 		A7DAC285111622CA005381CC /* ExperimentalBulletWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ExperimentalBulletWrapper.mm; sourceTree = "<group>"; };
 		A7F45EC810E026B40068ADE5 /* CppFileStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CppFileStreaming.h; sourceTree = "<group>"; };
+		E41CBED41A8EA1F00041908D /* MyApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyApplicationDelegate.h; sourceTree = "<group>"; };
+		E41CBED51A8EA1F00041908D /* MyApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyApplicationDelegate.m; sourceTree = "<group>"; };
 		E4E97A111A873FBE00C87278 /* bChunk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bChunk.cpp; sourceTree = "<group>"; };
 		E4E97A121A873FBE00C87278 /* bChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bChunk.h; sourceTree = "<group>"; };
 		E4E97A131A873FBE00C87278 /* bCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bCommon.h; sourceTree = "<group>"; };
@@ -771,6 +774,8 @@
 		A7C6FE8A1090D4E3008A55E1 /* ObjectiveCpp */ = {
 			isa = PBXGroup;
 			children = (
+				E41CBED41A8EA1F00041908D /* MyApplicationDelegate.h */,
+				E41CBED51A8EA1F00041908D /* MyApplicationDelegate.m */,
 				A7C6FE8B1090D4E3008A55E1 /* AddItemWithStepsSheetController.h */,
 				A7C6FE8C1090D4E3008A55E1 /* AddItemWithStepsSheetController.m */,
 				A7C6FE8D1090D4E3008A55E1 /* Item.h */,
@@ -1337,6 +1342,7 @@
 		2A37F4A9FDCFA73011CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				ORGANIZATIONNAME = "For license see LICENSE.TXT";
 			};
 			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "OpenGLEditor" */;
 			compatibilityVersion = "Xcode 3.1";
@@ -1474,6 +1480,7 @@
 				E4E97B731A873FBE00C87278 /* btBox2dBox2dCollisionAlgorithm.cpp in Sources */,
 				E4E97B9C1A873FBE00C87278 /* btHeightfieldTerrainShape.cpp in Sources */,
 				E4E97B891A873FBE00C87278 /* btUnionFind.cpp in Sources */,
+				E41CBED61A8EA1F00041908D /* MyApplicationDelegate.m in Sources */,
 				E4E97B8F1A873FBE00C87278 /* btCollisionShape.cpp in Sources */,
 				E4E97B851A873FBE00C87278 /* btSimulationIslandManager.cpp in Sources */,
 				E4E97B941A873FBE00C87278 /* btConvexHullShape.cpp in Sources */,
