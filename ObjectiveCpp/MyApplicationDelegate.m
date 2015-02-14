@@ -8,17 +8,27 @@
 
 #import "MyApplicationDelegate.h"
 
+#define OPEN_UNTITLED	0
+
 @implementation MyApplicationDelegate
 
 -(void)applicationDidFinishLaunching:(NSNotification *)notification
 {
+
+#if OPEN_UNTITLED
+
 	// Schedule "Checking whether document exists." into next UI Loop.
 	// Because document is not restored yet.
 	// So we don't know what do we have to create new one.
 	// Opened document can be identified here. (double click document file)
 	NSInvocationOperation* op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(openNewDocumentIfNeeded) object:nil];
 	[[NSOperationQueue mainQueue] addOperation: op];
+
+#endif
+
 }
+
+#if OPEN_UNTITLED
 
 -(void)openNewDocumentIfNeeded
 {
@@ -33,6 +43,8 @@
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender {
 	return YES;
 }
+
+#endif
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
 	return YES;
