@@ -774,46 +774,17 @@
 		A7C6FE8A1090D4E3008A55E1 /* ObjectiveCpp */ = {
 			isa = PBXGroup;
 			children = (
+				E40A98FE1A90CF83000398A9 /* Item */,
+				E40A98FD1A90CF6E000398A9 /* Manipulator */,
+				E40A98FC1A90CF60000398A9 /* Mesh */,
+				E40A98FB1A90CF51000398A9 /* OpenGL */,
+				E40A98FA1A90CF40000398A9 /* Shader */,
+				E40A98FF1A90CFBF000398A9 /* Property */,
 				E41CBED41A8EA1F00041908D /* MyApplicationDelegate.h */,
 				E41CBED51A8EA1F00041908D /* MyApplicationDelegate.m */,
-				A7C6FE8B1090D4E3008A55E1 /* AddItemWithStepsSheetController.h */,
-				A7C6FE8C1090D4E3008A55E1 /* AddItemWithStepsSheetController.m */,
-				A7C6FE8D1090D4E3008A55E1 /* Item.h */,
-				A7C6FE8E1090D4E3008A55E1 /* Item.mm */,
-				A7C6FE8F1090D4E3008A55E1 /* ItemCollection.h */,
-				A7C6FE901090D4E3008A55E1 /* ItemCollection.mm */,
-				A7C6FE911090D4E3008A55E1 /* ItemManipulationState.h */,
-				A7C6FE921090D4E3008A55E1 /* ItemManipulationState.mm */,
-				A7C6FE931090D4E3008A55E1 /* Manipulator.h */,
-				A7C6FE941090D4E3008A55E1 /* Manipulator.mm */,
-				A7C6FE951090D4E3008A55E1 /* ManipulatorWidget.h */,
-				A7C6FE961090D4E3008A55E1 /* ManipulatorWidget.mm */,
-				A7C6FE971090D4E3008A55E1 /* Mesh.h */,
-				A7C6FE981090D4E3008A55E1 /* Mesh.mm */,
-				A7C6FE991090D4E3008A55E1 /* MeshManipulationState.h */,
-				A7C6FE9A1090D4E3008A55E1 /* MeshManipulationState.mm */,
 				A7C6FE9B1090D4E3008A55E1 /* MyDocument.h */,
 				A7C6FE9C1090D4E3008A55E1 /* MyDocument.mm */,
-				A7C6FE9D1090D4E3008A55E1 /* OpenGLManipulating.h */,
-				A7C6FE9E1090D4E3008A55E1 /* OpenGLManipulatingController.h */,
-				A7C6FE9F1090D4E3008A55E1 /* OpenGLManipulatingController.mm */,
-				A7C6FEA01090D4E3008A55E1 /* OpenGLSceneView.h */,
-				A7C6FEA11090D4E3008A55E1 /* OpenGLSceneView.mm */,
-				A7C6FEA21090D4E3008A55E1 /* OpenGLSelecting.h */,
-				A711A9A810986B6D00F02394 /* OpenGLManipulatingModel.h */,
-				A7D7733A10A77DAC0068353E /* IndexedItem.h */,
-				A7D7733B10A77DAC0068353E /* IndexedItem.mm */,
-				A786AF4A10B9E2EC00D65415 /* MeshFullState.h */,
-				A786AF4B10B9E2EC00D65415 /* MeshFullState.mm */,
 				A7F45EC810E026B40068ADE5 /* CppFileStreaming.h */,
-				A7521EB010E678F0003D31E4 /* Shader.h */,
-				A7521EB110E678F0003D31E4 /* Shader.m */,
-				A7BB8C9110ED5CC300476385 /* ShaderProgram.h */,
-				A7BB8C9210ED5CC300476385 /* ShaderProgram.m */,
-				A7D288811101042F0092B9DC /* PropertyReflector.h */,
-				A7D288821101042F0092B9DC /* PropertyReflector.m */,
-				A785C66B1107B0C700E42D68 /* CachedProperty.h */,
-				A785C66C1107B0C700E42D68 /* CachedProperty.m */,
 				A7DAC284111622CA005381CC /* ExperimentalBulletWrapper.h */,
 				A7DAC285111622CA005381CC /* ExperimentalBulletWrapper.mm */,
 			);
@@ -827,6 +798,83 @@
 				A7C6FEB21090D4FB008A55E1 /* MyDocumentTest.mm */,
 			);
 			path = ObjectiveCppTests;
+			sourceTree = "<group>";
+		};
+		E40A98FA1A90CF40000398A9 /* Shader */ = {
+			isa = PBXGroup;
+			children = (
+				A7521EB010E678F0003D31E4 /* Shader.h */,
+				A7521EB110E678F0003D31E4 /* Shader.m */,
+				A7BB8C9110ED5CC300476385 /* ShaderProgram.h */,
+				A7BB8C9210ED5CC300476385 /* ShaderProgram.m */,
+			);
+			name = Shader;
+			sourceTree = "<group>";
+		};
+		E40A98FB1A90CF51000398A9 /* OpenGL */ = {
+			isa = PBXGroup;
+			children = (
+				A7C6FE9D1090D4E3008A55E1 /* OpenGLManipulating.h */,
+				A7C6FE9E1090D4E3008A55E1 /* OpenGLManipulatingController.h */,
+				A7C6FE9F1090D4E3008A55E1 /* OpenGLManipulatingController.mm */,
+				A7C6FEA01090D4E3008A55E1 /* OpenGLSceneView.h */,
+				A7C6FEA11090D4E3008A55E1 /* OpenGLSceneView.mm */,
+				A7C6FEA21090D4E3008A55E1 /* OpenGLSelecting.h */,
+				A711A9A810986B6D00F02394 /* OpenGLManipulatingModel.h */,
+			);
+			name = OpenGL;
+			sourceTree = "<group>";
+		};
+		E40A98FC1A90CF60000398A9 /* Mesh */ = {
+			isa = PBXGroup;
+			children = (
+				A786AF4A10B9E2EC00D65415 /* MeshFullState.h */,
+				A786AF4B10B9E2EC00D65415 /* MeshFullState.mm */,
+				A7C6FE971090D4E3008A55E1 /* Mesh.h */,
+				A7C6FE981090D4E3008A55E1 /* Mesh.mm */,
+				A7C6FE991090D4E3008A55E1 /* MeshManipulationState.h */,
+				A7C6FE9A1090D4E3008A55E1 /* MeshManipulationState.mm */,
+			);
+			name = Mesh;
+			sourceTree = "<group>";
+		};
+		E40A98FD1A90CF6E000398A9 /* Manipulator */ = {
+			isa = PBXGroup;
+			children = (
+				A7C6FE931090D4E3008A55E1 /* Manipulator.h */,
+				A7C6FE941090D4E3008A55E1 /* Manipulator.mm */,
+				A7C6FE951090D4E3008A55E1 /* ManipulatorWidget.h */,
+				A7C6FE961090D4E3008A55E1 /* ManipulatorWidget.mm */,
+			);
+			name = Manipulator;
+			sourceTree = "<group>";
+		};
+		E40A98FE1A90CF83000398A9 /* Item */ = {
+			isa = PBXGroup;
+			children = (
+				A7D7733A10A77DAC0068353E /* IndexedItem.h */,
+				A7D7733B10A77DAC0068353E /* IndexedItem.mm */,
+				A7C6FE8B1090D4E3008A55E1 /* AddItemWithStepsSheetController.h */,
+				A7C6FE8C1090D4E3008A55E1 /* AddItemWithStepsSheetController.m */,
+				A7C6FE8D1090D4E3008A55E1 /* Item.h */,
+				A7C6FE8E1090D4E3008A55E1 /* Item.mm */,
+				A7C6FE8F1090D4E3008A55E1 /* ItemCollection.h */,
+				A7C6FE901090D4E3008A55E1 /* ItemCollection.mm */,
+				A7C6FE911090D4E3008A55E1 /* ItemManipulationState.h */,
+				A7C6FE921090D4E3008A55E1 /* ItemManipulationState.mm */,
+			);
+			name = Item;
+			sourceTree = "<group>";
+		};
+		E40A98FF1A90CFBF000398A9 /* Property */ = {
+			isa = PBXGroup;
+			children = (
+				A7D288811101042F0092B9DC /* PropertyReflector.h */,
+				A7D288821101042F0092B9DC /* PropertyReflector.m */,
+				A785C66B1107B0C700E42D68 /* CachedProperty.h */,
+				A785C66C1107B0C700E42D68 /* CachedProperty.m */,
+			);
+			name = Property;
 			sourceTree = "<group>";
 		};
 		E4E97A0D1A873FBE00C87278 /* Bullet */ = {
