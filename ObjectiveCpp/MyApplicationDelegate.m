@@ -8,7 +8,7 @@
 
 #import "MyApplicationDelegate.h"
 
-#define OPEN_UNTITLED	0
+#define OPEN_UNTITLED	1
 
 @implementation MyApplicationDelegate
 
