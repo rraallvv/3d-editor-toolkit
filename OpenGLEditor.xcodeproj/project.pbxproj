@@ -48,7 +48,7 @@
 		A7D28895110107510092B9DC /* libobjc.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A7D28894110107510092B9DC /* libobjc.A.dylib */; };
 		A7D7733C10A77DAC0068353E /* IndexedItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7D7733B10A77DAC0068353E /* IndexedItem.mm */; };
 		A7DAC286111622CA005381CC /* ExperimentalBulletWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7DAC285111622CA005381CC /* ExperimentalBulletWrapper.mm */; };
-		E41CBED61A8EA1F00041908D /* MyApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E41CBED51A8EA1F00041908D /* MyApplicationDelegate.m */; };
+		E41CBED61A8EA1F00041908D /* MyAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E41CBED51A8EA1F00041908D /* MyAppDelegate.m */; };
 		E4E97B621A873FBE00C87278 /* bChunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E97A111A873FBE00C87278 /* bChunk.cpp */; };
 		E4E97B631A873FBE00C87278 /* bDNA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E97A151A873FBE00C87278 /* bDNA.cpp */; };
 		E4E97B641A873FBE00C87278 /* bFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E97A171A873FBE00C87278 /* bFile.cpp */; };
@@ -275,8 +275,8 @@
 		A7DAC284111622CA005381CC /* ExperimentalBulletWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExperimentalBulletWrapper.h; sourceTree = "<group>"; };
 		A7DAC285111622CA005381CC /* ExperimentalBulletWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ExperimentalBulletWrapper.mm; sourceTree = "<group>"; };
 		A7F45EC810E026B40068ADE5 /* CppFileStreaming.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CppFileStreaming.h; sourceTree = "<group>"; };
-		E41CBED41A8EA1F00041908D /* MyApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyApplicationDelegate.h; sourceTree = "<group>"; };
-		E41CBED51A8EA1F00041908D /* MyApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyApplicationDelegate.m; sourceTree = "<group>"; };
+		E41CBED41A8EA1F00041908D /* MyAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyAppDelegate.h; sourceTree = "<group>"; };
+		E41CBED51A8EA1F00041908D /* MyAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyAppDelegate.m; sourceTree = "<group>"; };
 		E4E97A111A873FBE00C87278 /* bChunk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bChunk.cpp; sourceTree = "<group>"; };
 		E4E97A121A873FBE00C87278 /* bChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bChunk.h; sourceTree = "<group>"; };
 		E4E97A131A873FBE00C87278 /* bCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bCommon.h; sourceTree = "<group>"; };
@@ -780,8 +780,8 @@
 				E40A98FB1A90CF51000398A9 /* OpenGL */,
 				E40A98FA1A90CF40000398A9 /* Shader */,
 				E40A98FF1A90CFBF000398A9 /* Property */,
-				E41CBED41A8EA1F00041908D /* MyApplicationDelegate.h */,
-				E41CBED51A8EA1F00041908D /* MyApplicationDelegate.m */,
+				E41CBED41A8EA1F00041908D /* MyAppDelegate.h */,
+				E41CBED51A8EA1F00041908D /* MyAppDelegate.m */,
 				A7C6FE9B1090D4E3008A55E1 /* MyDocument.h */,
 				A7C6FE9C1090D4E3008A55E1 /* MyDocument.mm */,
 				A7F45EC810E026B40068ADE5 /* CppFileStreaming.h */,
@@ -1528,7 +1528,7 @@
 				E4E97B731A873FBE00C87278 /* btBox2dBox2dCollisionAlgorithm.cpp in Sources */,
 				E4E97B9C1A873FBE00C87278 /* btHeightfieldTerrainShape.cpp in Sources */,
 				E4E97B891A873FBE00C87278 /* btUnionFind.cpp in Sources */,
-				E41CBED61A8EA1F00041908D /* MyApplicationDelegate.m in Sources */,
+				E41CBED61A8EA1F00041908D /* MyAppDelegate.m in Sources */,
 				E4E97B8F1A873FBE00C87278 /* btCollisionShape.cpp in Sources */,
 				E4E97B851A873FBE00C87278 /* btSimulationIslandManager.cpp in Sources */,
 				E4E97B941A873FBE00C87278 /* btConvexHullShape.cpp in Sources */,

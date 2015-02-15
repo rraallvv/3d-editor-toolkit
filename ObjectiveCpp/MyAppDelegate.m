@@ -6,11 +6,11 @@
 //  For license see LICENSE.TXT
 //
 
-#import "MyApplicationDelegate.h"
+#import "MyAppDelegate.h"
 
 #define OPEN_UNTITLED	1
 
-@implementation MyApplicationDelegate
+@implementation MyAppDelegate
 
 -(void)applicationDidFinishLaunching:(NSNotification *)notification
 {
