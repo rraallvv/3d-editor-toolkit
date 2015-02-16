@@ -781,12 +781,18 @@ MeshFullState *currentState = [items currentMeshFull]; \
 		[view setNeedsDisplay:YES]; 
 	}
 }
-
+/*
 - (NSString *)windowNibName
 {
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
     return @"MyDocument";
+}*/
+
+- (void)makeWindowControllers
+{
+	NSWindowController *windowController = [[NSWindowController alloc] initWithWindowNibName:@"MyDocument" owner:self];
+	[self addWindowController:windowController];
 }
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
