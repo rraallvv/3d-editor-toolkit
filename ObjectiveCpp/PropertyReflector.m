@@ -58,7 +58,7 @@
 		NSString *propertyName = [NSString stringWithCString:property_getName(properties[i]) 
 													encoding:NSASCIIStringEncoding];			
 		
-		NSLog(@"%@:%@", propertyName, attributes);
+		//NSLog(@"%@:%@", propertyName, attributes);
 		
 		// no references, structs or pointers
 		if (![attributes hasPrefix:@"T@"] && 
@@ -66,7 +66,7 @@
 			![attributes hasPrefix:@"T^"])
 		{
 			NSArray *components = [attributes componentsSeparatedByString:@","];
-			NSLog(@"components: %@", components);
+			//NSLog(@"components: %@", components);
 			// ignore readonly
 			if ([components count] < 2 || ![[components objectAtIndex:1] isEqualTo:@"R"])
 			{
